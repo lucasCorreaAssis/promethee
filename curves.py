@@ -10,7 +10,7 @@ class Curve(ABC):
     def compute_preference_degree(self, preference_value):
         '''Compute preference degree'''
 
-class CurvaUsual(Curve):
+class UsualCurve(Curve):
     '''Usual preference curve'''
     def compute_preference_degree(self, preference_value):
         if preference_value <= 0:
@@ -19,12 +19,26 @@ class CurvaUsual(Curve):
             degree = 1
         return degree
 
-class CurvaUShape(Curve):
-    '''U-Shape preference curve'''
+@dataclass
+class LinearCurve(Curve):
+    '''Level preference curve'''
+    p: float
     q: float
 
-    def __init__(self, q: float) -> None:
-        self.q = q
+    def compute_preference_degree(self, preference_value):
+        if preference_value <= self.q:
+            return 0
+
+        if preference_value > self.q and preference_value <= self.p:
+            return (preference_value - self.q) / (self.p - self.q)
+
+        return 1
+
+
+@dataclass
+class UShapeCurve(Curve):
+    '''U-Shape preference curve'''
+    q: float
 
     def compute_preference_degree(self, preference_value):
         if preference_value <= self.q:
@@ -38,7 +52,7 @@ class CurvaUShape(Curve):
         return degree
 
 @dataclass
-class CurvaVShape(Curve):
+class VShapeCurve(Curve):
     '''V-Shape preference curve'''
     p: float
 
@@ -54,7 +68,7 @@ class CurvaVShape(Curve):
         return degree
 
 @dataclass
-class CurvaLevel(Curve):
+class LevelCurve(Curve):
     '''Level preference curve'''
     p: float
     q: float
@@ -73,7 +87,7 @@ class CurvaLevel(Curve):
         return degree
 
 @dataclass
-class CurvaVShapeI(Curve):
+class VShapeICurve(Curve):
     '''V-Shape I preference curve'''
     p: float
     q: float
@@ -92,7 +106,7 @@ class CurvaVShapeI(Curve):
         return degree
 
 @dataclass
-class CurvaGaussian(Curve):
+class GaussianCurve(Curve):
     '''Gaussian preference curve'''
     s: float
 
