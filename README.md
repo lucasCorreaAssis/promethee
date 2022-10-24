@@ -2,7 +2,7 @@
 
 This repository has the focus of implementing an object-oriented framework for Promethee - Multi Criteria Decision Method.
 
-## How to add to your git existing project
+## How to add this project to your existing project with git?
 
 ```
 git submodule add <URL_TO_THIS_REPOSITORY>
@@ -16,7 +16,7 @@ We'll build a decision method based on promethee with the fallowing criterias:
 
 |Criteria|First Criteria|Second Criteria|
 |---|---|---|
-|Weight|1.0|1.0|
+|Weight|0.5|0.5|
 |Goal|max|min|
 |Preference Curve|Usual Curve|Gaussian Curve [s=0.6]|
 
@@ -62,7 +62,7 @@ class MyDecision(Promethee):
 
         first_criteria = Criteria(
             name='First Criteria',
-            weight=1.0,
+            weight=0.5,
             goal='max',
             curve=UsualCurve()
         )
@@ -70,7 +70,7 @@ class MyDecision(Promethee):
 
         second_criteria = Criteria(
             name='Second Criteria',
-            weight=1.0,
+            weight=0.5,
             goal='min',
             curve=GaussianCurve(0.5)
         )
