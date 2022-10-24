@@ -46,9 +46,7 @@ class Promethee:
     def prioritize(self, values):
         '''Prioritize alternatives based on values'''
         comparison_matrix = self.__compute_comparison_matrix(values)
-        comparison_criteria_matrix = self.__compute_comparison_criteria_matrix(comparison_matrix)
-        comparison_criteria_weight_matrix = self.__compute_comparison_criteria_weight_matrix(comparison_criteria_matrix)
-        aggregate_preference_matrix = self.__compute_aggregate_preference_matrix(comparison_criteria_weight_matrix)
+        aggregate_preference_matrix = self.__compute_aggregate_preference_matrix(comparison_matrix)
         return self.__compute_output(aggregate_preference_matrix)
 
     def __compute_comparison_matrix(self, values):
@@ -58,46 +56,20 @@ class Promethee:
             for i, _ in enumerate(self.alternatives):
                 values_comparison = []
                 for k, _ in enumerate(self.alternatives):
+
                     if criteria.goal == 'max':
-                        alternative_comparison_value = round(((values[j][i]) - (values[j][k])), 2)
+                        alternative_comparison_value = ((values[j][i]) - (values[j][k]))
                     elif criteria.goal == 'min':
-                        alternative_comparison_value = round(((values[j][k]) - (values[j][i])), 2)
-                    values_comparison.append(alternative_comparison_value)
+                        alternative_comparison_value = ((values[j][k]) - (values[j][i]))
+
+                    degree = criteria.curve.compute_preference_degree(alternative_comparison_value)
+
+                    alternative_value = float((degree) * criteria.weight)
+
+                    values_comparison.append(alternative_value)
                 criteria_comparison_matrix.append(values_comparison)
             comparison_matrix.append(criteria_comparison_matrix)
         return comparison_matrix
-
-    def __compute_comparison_criteria_matrix(self, comparison_matrix):
-        comparison_criteria_matrix = []
-        for j, criteria in enumerate(self.criterias):
-            curve_types = []
-            for i, _ in enumerate(self.alternatives):
-                degree_values = []
-                for k, _ in enumerate(self.alternatives):
-
-                    preference_value = (comparison_matrix[j][i][k])
-                    degree = criteria.curve.compute_preference_degree(preference_value)
-
-                    degree_values.append(degree)
-                curve_types.append(degree_values)
-            comparison_criteria_matrix.append(curve_types)
-        return comparison_criteria_matrix
-
-    def __compute_comparison_criteria_weight_matrix(self, comparison_criteria_matrix):
-        weight_matrix = []
-        for j, criteria in enumerate(self.criterias):
-            weight_criteria_matrix = []
-
-            for i, _ in enumerate(self.alternatives):
-                weight_values = []
-                for k, _ in enumerate(self.alternatives):
-                    alternative_value = round(
-                        float((comparison_criteria_matrix[j][i][k]) * criteria.weight), 3)
-
-                    weight_values.append(alternative_value)
-                weight_criteria_matrix.append(weight_values)
-            weight_matrix.append(weight_criteria_matrix)
-        return weight_matrix
 
     def __compute_aggregate_preference_matrix(self, comparison_criteria_weight_matrix):
         aggregate_preference_matrix = []
@@ -108,9 +80,7 @@ class Promethee:
                 for j, _ in enumerate(self.criterias):
                     final_value = comparison_criteria_weight_matrix[j][i][k]
                     value_sum += final_value
-
-                final_value_mean = round(float(value_sum/len(self.criterias)), 3)
-
+                final_value_mean = value_sum 
                 final_values.append(final_value_mean)
             aggregate_preference_matrix.append(final_values)
         return aggregate_preference_matrix
@@ -128,7 +98,8 @@ class Promethee:
             negative_flow_net = 0
             for k, _ in enumerate(self.alternatives):
                 negative_flow_net += aggregate_preference_matrix[k][i]
-            negative_phi = Phi(alternative, round(negative_flow_net, 3))
+            negative_flow_net *= 1/(len(self.alternatives)-1)
+            negative_phi = Phi(alternative, negative_flow_net)
             negative_phi_values.append(negative_phi)
         return negative_phi_values
 
@@ -138,7 +109,8 @@ class Promethee:
             positive_flow_net = 0
             for k, _ in enumerate(self.alternatives):
                 positive_flow_net += aggregate_preference_matrix[i][k]
-            positive_phi = Phi(alternative, round(positive_flow_net, 3))
+            positive_flow_net *= 1/(len(self.alternatives)-1)
+            positive_phi = Phi(alternative, positive_flow_net)
             positive_phi_values.append(positive_phi)
         return positive_phi_values
 
@@ -146,6 +118,6 @@ class Promethee:
         unicriteria_phi_values = []
         for i, alternative in enumerate(self.alternatives):
             unicriteria_net_flow = (positive_phi[i].value) - (negative_phi[i].value)
-            unicriteria_phi = Phi(alternative, round(unicriteria_net_flow, 3))
+            unicriteria_phi = Phi(alternative, unicriteria_net_flow)
             unicriteria_phi_values.append(unicriteria_phi)
         return sorted(unicriteria_phi_values, key=lambda x: x.value, reverse=True)
