@@ -97,7 +97,7 @@ class MyDecision(Promethee):
 
         first_criteria = Criteria(
             name='First Criteria',
-            weight=1.0,
+            weight=0.5,
             goal='max',
             curve=UsualCurve()
         )
@@ -105,7 +105,7 @@ class MyDecision(Promethee):
 
         second_criteria = Criteria(
             name='Second Criteria',
-            weight=1.0,
+            weight=0.5,
             goal='min',
             curve=GaussianCurve(0.5)
         )
